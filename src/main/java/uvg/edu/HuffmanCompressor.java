@@ -1,8 +1,12 @@
 package uvg.edu;
 
+import java.io.BufferedWriter;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,26 +23,24 @@ class HuffmanCompressor {
     }
 
     public String compress(String text, Map<Character, String> huffmanCodes) {
-        StringBuilder compressed = new StringBuilder();
-
+        StringBuilder compressedText = new StringBuilder();
+    
         for (char c : text.toCharArray()) {
-            compressed.append(huffmanCodes.get(c));
+            compressedText.append(huffmanCodes.get(c));
         }
-
-        return compressed.toString();
+    
+        return compressedText.toString();
     }
 
-    public void writeCompressedFile(String compressedText, String outputFile) throws IOException {
-        try (BitOutputStream out = new BitOutputStream(new FileOutputStream(outputFile))) {
-            for (char bit : compressedText.toCharArray()) {
-                out.writeBit(bit == '1');
-            }
+    public void writeCompressedFile(String compressedText, String outputPath) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath))) {
+            writer.write(compressedText);
         }
     }
 
-    public void saveHuffmanTree(HuffmanTree tree, String outputFile) throws IOException {
-        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(outputFile))) {
-            out.writeObject(tree);
+    public void saveHuffmanTree(HuffmanTree tree, String outputPath) throws IOException {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(outputPath))) {
+            oos.writeObject(tree);
         }
     }
 }

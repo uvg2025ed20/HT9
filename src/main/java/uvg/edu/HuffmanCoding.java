@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+
 public class HuffmanCoding {
 
     private static Scanner scanner = new Scanner(System.in);
@@ -89,48 +90,58 @@ public class HuffmanCoding {
         }
     }
 
-    private static void compressMenu() {
-        System.out.println("\n== COMPRESIÓN DE ARCHIVO ==");
-        System.out.print("Ingrese la ruta del archivo a comprimir (ej: texto.txt): ");
-        String inputFile = scanner.nextLine();
+    public static void compressMenu() {
+        String inputFile = "src/main/java/uvg/edu/text.txt"; // Ruta del archivo a comprimir
+        String outputFile = "src/main/java/uvg/edu/compress/text"; // Prefijo para los archivos comprimidos
 
-        if (!fileExists(inputFile)) {
-            System.out.println("Error: El archivo especificado no existe.");
-            return;
+        try {
+            String text = new String(Files.readAllBytes(Paths.get(inputFile)));
+
+            HuffmanCompressor compressor = new HuffmanCompressor();
+            Map<Character, Integer> frequencies = compressor.calculateFrequencies(text);
+
+            HuffmanTree tree = new HuffmanTree();
+            tree.buildTree(frequencies);
+
+            Map<Character, String> huffmanCodes = tree.getHuffmanCodes();
+
+            String compressedText = compressor.compress(text, huffmanCodes);
+
+            compressor.writeCompressedFile(compressedText, outputFile + ".huff");
+            compressor.saveHuffmanTree(tree, outputFile + ".hufftree");
+
+            System.out.println("\nCompresión completada exitosamente!");
+            System.out.println("Archivo comprimido guardado en: " + outputFile + ".huff");
+            System.out.println("Árbol de Huffman guardado en: " + outputFile + ".hufftree");
+
+        } catch (IOException e) {
+            System.err.println("\nError durante la compresión: " + e.getMessage());
+            e.printStackTrace();
         }
-
-        System.out.print("Ingrese el nombre base para los archivos comprimidos (sin extensión): ");
-        String outputPrefix = scanner.nextLine();
-
-        System.out.println("\nComprimiendo archivo...");
-        compress(inputFile, outputPrefix);
     }
 
-    private static void decompressMenu() {
-        System.out.println("\n== DESCOMPRESIÓN DE ARCHIVO ==");
-        System.out.print("Ingrese la ruta del archivo comprimido (.huff): ");
-        String huffFile = scanner.nextLine();
 
-        if (!fileExists(huffFile)) {
-            System.out.println("Error: El archivo .huff especificado no existe.");
-            return;
+    public static void decompressMenu() {
+        String huffFile = "src/main/java/uvg/edu/compress/text.huff"; // Ruta del archivo comprimido
+        String treeFile = "src/main/java/uvg/edu/compress/text.hufftree"; // Ruta del archivo del árbol
+        String outputFile = "src/main/java/uvg/edu/output/textDescompressed.txt"; // Ruta del archivo descomprimido
+
+        try {
+            HuffmanDecompressor decompressor = new HuffmanDecompressor();
+            HuffmanTree tree = decompressor.loadHuffmanTree(treeFile);
+
+            String decompressedText = decompressor.decompress(huffFile, tree.getRoot());
+
+            Files.write(Paths.get(outputFile), decompressedText.getBytes());
+
+            System.out.println("\nDescompresión completada exitosamente!");
+            System.out.println("Archivo descomprimido guardado en: " + outputFile);
+
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("\nError durante la descompresión: " + e.getMessage());
+            e.printStackTrace();
         }
-
-        System.out.print("Ingrese la ruta del archivo de árbol (.hufftree): ");
-        String treeFile = scanner.nextLine();
-
-        if (!fileExists(treeFile)) {
-            System.out.println("Error: El archivo .hufftree especificado no existe.");
-            return;
-        }
-
-        System.out.print("Ingrese el nombre para el archivo descomprimido: ");
-        String outputFile = scanner.nextLine();
-
-        System.out.println("\nDescomprimiendo archivo...");
-        decompress(huffFile, treeFile, outputFile);
     }
-
     private static boolean fileExists(String filePath) {
         return Files.exists(Paths.get(filePath));
     }
@@ -146,7 +157,8 @@ public class HuffmanCoding {
             } else {
                 System.out.println("Uso:");
                 System.out.println("  Para comprimir: java HuffmanCoding -c <archivo_entrada> <prefijo_salida>");
-                System.out.println("  Para descomprimir: java HuffmanCoding -d <archivo.huff> <archivo.hufftree> <archivo_salida>");
+                System.out.println(
+                        "  Para descomprimir: java HuffmanCoding -d <archivo.huff> <archivo.hufftree> <archivo_salida>");
             }
         } else {
             showMenu();
