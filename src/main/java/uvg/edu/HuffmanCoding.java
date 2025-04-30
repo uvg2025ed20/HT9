@@ -5,10 +5,19 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
+/**
+ * Main class for compressing and decompressing files using the Huffman algorithm.
+ */
 public class HuffmanCoding {
 
     private static Scanner scanner = new Scanner(System.in);
 
+    /**
+     * Compresses a text file using the Huffman algorithm.
+     *
+     * @param inputFile  The path to the input file to be compressed.
+     * @param outputFile The base path for the generated compressed files.
+     */
     public static void compress(String inputFile, String outputFile) {
         try {
             String text = new String(Files.readAllBytes(Paths.get(inputFile)));
@@ -39,6 +48,13 @@ public class HuffmanCoding {
         }
     }
 
+    /**
+     * Decompresses a file using the Huffman tree.
+     *
+     * @param inputFile  The path to the compressed file (.huff).
+     * @param treeFile   The path to the Huffman tree file (.hufftree).
+     * @param outputFile The path to the output decompressed file.
+     */
     public static void decompress(String inputFile, String treeFile, String outputFile) {
         try {
             HuffmanDecompressor decompressor = new HuffmanDecompressor();
@@ -57,6 +73,9 @@ public class HuffmanCoding {
         }
     }
 
+    /**
+     * Displays the main menu for the user to select an option.
+     */
     public static void showMenu() {
         boolean exit = false;
 
@@ -92,14 +111,23 @@ public class HuffmanCoding {
 
     private static final String DEFAULT_OUTPUT_DIRECTORY = "src\\main\\java\\uvg\\edu\\datos\\";
 
+    /**
+     * Generates the full path for a file in the default output directory.
+     *
+     * @param fileName The name of the file.
+     * @return The full path of the file in the default directory.
+     */
     private static String getOutputPath(String fileName) {
         File directory = new File(DEFAULT_OUTPUT_DIRECTORY);
         if (!directory.exists()) {
-            directory.mkdirs(); // Crear el directorio si no existe
+            directory.mkdirs(); // Create the directory if it does not exist
         }
         return DEFAULT_OUTPUT_DIRECTORY + fileName;
     }
 
+    /**
+     * Displays the menu for compressing files.
+     */
     private static void compressMenu() {
         System.out.println("\n== COMPRESIÓN DE ARCHIVO ==");
         System.out.print("Ingrese la ruta del archivo a comprimir (ej: texto.txt): ");
@@ -113,11 +141,14 @@ public class HuffmanCoding {
         System.out.print("Ingrese el nombre base para los archivos comprimidos (sin extensión): ");
         String outputPrefix = scanner.nextLine();
 
-        String outputPath = getOutputPath(outputPrefix); // Usar la ruta predeterminada
+        String outputPath = getOutputPath(outputPrefix); // Use the default path
         System.out.println("\nComprimiendo archivo...");
         compress(inputFile, outputPath);
     }
 
+    /**
+     * Displays the menu for decompressing files.
+     */
     private static void decompressMenu() {
         System.out.println("\n== DESCOMPRESIÓN DE ARCHIVO ==");
         System.out.print("Ingrese la ruta del archivo comprimido (.huff): ");
@@ -139,15 +170,29 @@ public class HuffmanCoding {
         System.out.print("Ingrese el nombre para el archivo descomprimido: ");
         String outputFile = scanner.nextLine();
 
-        String outputPath = getOutputPath(outputFile); // Usar la ruta predeterminada
+        String outputPath = getOutputPath(outputFile); // Use the default path
         System.out.println("\nDescomprimiendo archivo...");
         decompress(huffFile, treeFile, outputPath);
     }
 
+    /**
+     * Checks if a file exists at the specified path.
+     *
+     * @param filePath The path of the file.
+     * @return {@code true} if the file exists, {@code false} otherwise.
+     */
     private static boolean fileExists(String filePath) {
         return Files.exists(Paths.get(filePath));
     }
 
+    /**
+     * Main method that executes the program.
+     *
+     * @param args Command-line arguments:
+     *             - "-c <input_file> <output_prefix>": Compress a file.
+     *             - "-d <compressed_file> <tree_file> <output_file>": Decompress a file.
+     *             If no arguments are provided, the program displays an interactive menu.
+     */
     public static void main(String[] args) {
         if (args.length > 0) {
             String operation = args[0];
